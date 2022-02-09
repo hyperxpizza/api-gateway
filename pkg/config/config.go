@@ -7,7 +7,18 @@ import (
 	"os"
 )
 
-type Config struct{}
+type Config struct {
+	Router struct {
+		Host string `json:"host"`
+		Port int    `json:"port"`
+		Mode string `json:"mode"`
+	} `json:"router"`
+	AuthService struct {
+		Host     string `json:"host"`
+		Port     int    `json:"port"`
+		CertPath string `json:"certPath"`
+	} `json:"authService"`
+}
 
 func NewConfig(pathToFile string) (*Config, error) {
 	file, err := os.Open(pathToFile)
