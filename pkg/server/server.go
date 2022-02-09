@@ -29,6 +29,7 @@ func NewServer(configPath string, logger logrus.FieldLogger) (*Server, error) {
 		return nil, err
 	}
 
+	gin.SetMode(cfg.Router.Mode)
 	router := gin.Default()
 
 	return &Server{
