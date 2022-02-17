@@ -1,15 +1,41 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	aspb "github.com/hyperxpizza/auth-service/pkg/grpc"
+	uspb "github.com/hyperxpizza/users-service/pkg/grpc"
+	"google.golang.org/grpc/status"
 )
 
-func (s *Server) Login(c *gin.Context) {}
+type loginRequest struct {
+	username string `json:"username"`
+	password string `json:"password"`
+}
+
+func (s *Server) Login(c *gin.Context) {
+	var req loginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	loginData, err := s.usersServiceClient.GetLoginData(context.Background(), &uspb.LoginRequest{req.username, req.password})
+	if err != nil {
+		st, ok := status.FromError(err)
+		if !ok {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		code := st.Code()
+
+	}
+}
 
 func (s *Server) Register(c *gin.Context) {}
 

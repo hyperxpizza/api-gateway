@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/hyperxpizza/auth-service v0.0.0-20220209145353-066bee08b017
+	github.com/hyperxpizza/users-service v0.0.0-20220216165856-dfb90fee2679
 	github.com/sirupsen/logrus v1.8.1
 	google.golang.org/grpc v1.44.0
 )

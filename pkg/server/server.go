@@ -7,14 +7,16 @@ import (
 	"github.com/hyperxpizza/api-gateway/pkg/config"
 	grpcconnection "github.com/hyperxpizza/api-gateway/pkg/grpc-connection"
 	aspb "github.com/hyperxpizza/auth-service/pkg/grpc"
+	uspb "github.com/hyperxpizza/users-service/pkg/grpc"
 	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
-	router            *gin.Engine
-	logger            logrus.FieldLogger
-	cfg               *config.Config
-	authServiceClient aspb.AuthServiceClient
+	router             *gin.Engine
+	logger             logrus.FieldLogger
+	cfg                *config.Config
+	authServiceClient  aspb.AuthServiceClient
+	usersServiceClient uspb.UsersServiceClient
 }
 
 func NewServer(configPath string, logger logrus.FieldLogger) (*Server, error) {
@@ -24,7 +26,12 @@ func NewServer(configPath string, logger logrus.FieldLogger) (*Server, error) {
 		return nil, err
 	}
 
-	authServiceClient, err := grpcconnection.AuthServiceConnection(cfg.Router.Host, cfg.AuthService.CertPath, cfg.AuthService.Port)
+	authServiceClient, err := grpcconnection.AuthServiceConnection(cfg.AuthService.Host, cfg.AuthService.CertPath, cfg.AuthService.Port)
+	if err != nil {
+		return nil, err
+	}
+
+	usersServiceClient, err := grpcconnection.UsersServiceConnection(cfg.UsersService.Host, cfg.UsersService.CertPath, cfg.UsersService.Port)
 	if err != nil {
 		return nil, err
 	}
@@ -33,10 +40,11 @@ func NewServer(configPath string, logger logrus.FieldLogger) (*Server, error) {
 	router := gin.Default()
 
 	return &Server{
-		logger:            logger,
-		cfg:               cfg,
-		router:            router,
-		authServiceClient: *authServiceClient,
+		logger:             logger,
+		cfg:                cfg,
+		router:             router,
+		authServiceClient:  *authServiceClient,
+		usersServiceClient: *usersServiceClient,
 	}, nil
 
 }

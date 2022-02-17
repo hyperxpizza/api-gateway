@@ -18,6 +18,11 @@ type Config struct {
 		Port     int    `json:"port"`
 		CertPath string `json:"certPath"`
 	} `json:"authService"`
+	UsersService struct {
+		Host     string `json:"host"`
+		Port     int    `json:"port"`
+		CertPath string `json:"certPath"`
+	} `json:"UsersService"`
 }
 
 func NewConfig(pathToFile string) (*Config, error) {

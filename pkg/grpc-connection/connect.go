@@ -9,6 +9,7 @@ import (
 	"log"
 
 	aspb "github.com/hyperxpizza/auth-service/pkg/grpc"
+	uspb "github.com/hyperxpizza/users-service/pkg/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -23,7 +24,7 @@ func loadTLSCredentials(certPath string) (credentials.TransportCredentials, erro
 
 	certPool := x509.NewCertPool()
 	if !certPool.AppendCertsFromPEM(pemServerCert) {
-		return nil, errors.New("failed to addd server CA's certificate")
+		return nil, errors.New("failed to add server CA's certificate")
 	}
 
 	conf := &tls.Config{
@@ -50,5 +51,15 @@ func AuthServiceConnection(host, certPath string, port int) (*aspb.AuthServiceCl
 	}
 
 	client := aspb.NewAuthServiceClient(conn)
+	return &client, nil
+}
+
+func UsersServiceConnection(host, certPath string, port int) (*uspb.UsersServiceClient, error) {
+	conn, err := grpcConnection(host, port)
+	if err != nil {
+		return nil, err
+	}
+
+	client := uspb.NewUsersServiceClient(conn)
 	return &client, nil
 }
