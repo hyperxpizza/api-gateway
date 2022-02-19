@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,6 +12,13 @@ import (
 	uspb "github.com/hyperxpizza/users-service/pkg/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+const (
+	AuthServiceIDContext   = "authServiceID"
+	UsersServiceIDContext  = "usersSerivceID"
+	UsernameContext        = "username"
+	NotFoundInContextError = "%s not found in the context"
 )
 
 type loginRequest struct {
@@ -86,9 +94,14 @@ func (s *Server) Register(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
+
+	c.Status(http.StatusCreated)
+	return
 }
 
-func (s *Server) SignOut(c *gin.Context) {}
+func (s *Server) SignOut(c *gin.Context) {
+	//c.Get("")
+}
 
 func (s *Server) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -111,9 +124,9 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("authServiceID", data.AuthServiceID)
-		c.Set("usersServiceID", data.UsersServiceID)
-		c.Set("username", data.Username)
+		c.Set(AuthServiceIDContext, data.AuthServiceID)
+		c.Set(UsersServiceIDContext, data.UsersServiceID)
+		c.Set(UsernameContext, data.Username)
 		c.Next()
 	}
 }
@@ -126,4 +139,24 @@ func getTokenFromHeader(r *http.Request) (string, error) {
 	}
 	tokenString := strings.TrimSpace(splitToken[1])
 	return tokenString, nil
+}
+
+func getContextData(c *gin.Context) (int64, int64, string, error) {
+
+	asid, exists := c.Get(AuthServiceIDContext)
+	if !exists {
+		return 0, 0, "", fmt.Errorf(NotFoundInContextError, AuthServiceIDContext)
+	}
+
+	usid, exists := c.Get(UsersServiceIDContext)
+	if !exists {
+		return 0, 0, "", fmt.Errorf(NotFoundInContextError, UsersServiceIDContext)
+	}
+
+	username, exists := c.Get(UsernameContext)
+	if !exists {
+		return 0, 0, "", fmt.Errorf(NotFoundInContextError, UsernameContext)
+	}
+
+	return asid.(int64), usid.(int64), username.(string), nil
 }
