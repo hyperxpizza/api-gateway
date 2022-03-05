@@ -2,16 +2,16 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hyperxpizza/api-gateway/pkg/utils"
 	aspb "github.com/hyperxpizza/auth-service/pkg/grpc"
 	uspb "github.com/hyperxpizza/users-service/pkg/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -20,6 +20,7 @@ const (
 	UsernameContext        = "username"
 	NotFoundInContextError = "%s not found in the context"
 	NotAuthorized          = "not authorized"
+	UserNotFoundError      = "user: %s was not found"
 )
 
 type loginRequest struct {
@@ -39,43 +40,30 @@ func (s *Server) Login(c *gin.Context) {
 
 	loginData, err := s.usersServiceClient.GetLoginData(bgContext, &uspb.LoginRequest{Username: req.username, Password: req.password})
 	if err != nil {
-		st, ok := status.FromError(err)
-		if !ok {
-			c.Status(http.StatusInternalServerError)
-			return
-		}
-
-		s := st.Proto()
-		if s.Code == int32(codes.NotFound) {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, gin.H{
-				"msg": "username not found in the users-service database",
+				"msg": UserNotFoundError,
 			})
 			return
 		}
 
-		c.Status(http.StatusInternalServerError)
+		code := utils.GetHTTPCodeFromStatus(err)
+		c.Status(code)
 		return
 	}
 
 	tokens, err := s.authServiceClient.GenerateToken(bgContext, &aspb.TokenRequest{Username: req.username, UsersServiceID: loginData.UserID})
 	if err != nil {
-		st, ok := status.FromError(err)
-		if !ok {
-			c.Status(http.StatusInternalServerError)
-			return
-		}
-
-		s := st.Proto()
-		if s.Code == int32(codes.NotFound) {
+		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, gin.H{
-				"msg": "username not found in the auth-service database",
+				"msg": UserNotFoundError,
 			})
 			return
 		}
 
-		c.Status(http.StatusInternalServerError)
+		code := utils.GetHTTPCodeFromStatus(err)
+		c.Status(code)
 		return
-
 	}
 
 	c.JSON(http.StatusOK, gin.H{
