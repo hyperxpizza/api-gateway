@@ -63,5 +63,12 @@ func (s *Server) setupRoutes() {
 			auth.POST("/login", s.Login)
 			auth.POST("/register", s.Register)
 		}
+
+		auth2 := api.Group("protected")
+		auth2.Use(s.AuthMiddleware())
+		{
+			auth.POST("/refresh", s.RefreshToken)
+			auth.POST("/logout", s.Logout)
+		}
 	}
 }

@@ -19,6 +19,7 @@ const (
 	UsersServiceIDContext  = "usersSerivceID"
 	UsernameContext        = "username"
 	NotFoundInContextError = "%s not found in the context"
+	NotAuthorized          = "not authorized"
 )
 
 type loginRequest struct {
@@ -29,6 +30,7 @@ type loginRequest struct {
 var bgContext = context.Background()
 
 func (s *Server) Login(c *gin.Context) {
+
 	var req loginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.Status(http.StatusBadRequest)
@@ -55,7 +57,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := s.authServiceClient.GenerateToken(bgContext, &aspb.TokenRequest{Username: req.username, UsersServiceID: loginData.UserID})
+	tokens, err := s.authServiceClient.GenerateToken(bgContext, &aspb.TokenRequest{Username: req.username, UsersServiceID: loginData.UserID})
 	if err != nil {
 		st, ok := status.FromError(err)
 		if !ok {
@@ -77,8 +79,10 @@ func (s *Server) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token.Token,
+		"accessToken":  tokens.AccessToken,
+		"refreshToken": tokens.RefreshToken,
 	})
+
 }
 
 type registerRequest struct {
@@ -96,11 +100,6 @@ func (s *Server) Register(c *gin.Context) {
 	}
 
 	c.Status(http.StatusCreated)
-	return
-}
-
-func (s *Server) SignOut(c *gin.Context) {
-	//c.Get("")
 }
 
 func (s *Server) AuthMiddleware() gin.HandlerFunc {
@@ -108,17 +107,17 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 		tokenString, err := getTokenFromHeader(c.Request)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "Not Authorized",
+				"message": NotAuthorized,
 			})
 			c.Abort()
 			return
 		}
 
-		token := aspb.Token{Token: tokenString}
+		token := aspb.AccessTokenData{AccessToken: tokenString}
 		data, err := s.authServiceClient.ValidateToken(c, &token)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "Not Authorized",
+				"message": NotAuthorized,
 			})
 			c.Abort()
 			return
@@ -129,6 +128,14 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 		c.Set(UsernameContext, data.Username)
 		c.Next()
 	}
+}
+
+func (s *Server) RefreshToken(c *gin.Context) {
+
+}
+
+func (s *Server) Logout(c *gin.Context) {
+
 }
 
 func getTokenFromHeader(r *http.Request) (string, error) {
