@@ -1,4 +1,4 @@
-package grpcconnection
+package grpcconn
 
 import (
 	"crypto/tls"

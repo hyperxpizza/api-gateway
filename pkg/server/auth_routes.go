@@ -86,12 +86,12 @@ func (s *Server) Register(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-
 	c.Status(http.StatusCreated)
 }
 
 func (s *Server) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		tokenString, err := getTokenFromHeader(c.Request)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -115,6 +115,7 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 		c.Set(UsersServiceIDContext, data.UsersServiceID)
 		c.Set(UsernameContext, data.Username)
 		c.Next()
+
 	}
 }
 
@@ -123,7 +124,26 @@ func (s *Server) RefreshToken(c *gin.Context) {
 }
 
 func (s *Server) Logout(c *gin.Context) {
+	asid, usid, username, err := getContextData(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err": err.Error(),
+		})
+	}
 
+	data := aspb.TokenData{
+		Username:       username,
+		AuthServiceID:  asid,
+		UsersServiceID: usid,
+	}
+	_, err = s.authServiceClient.DeleteTokens(bgContext, &data)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"err": err.Error(),
+		})
+	}
+
+	c.Status(http.StatusNoContent)
 }
 
 func getTokenFromHeader(r *http.Request) (string, error) {

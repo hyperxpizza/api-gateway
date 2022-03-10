@@ -72,10 +72,14 @@ github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/hyperxpizza/auth-service v0.0.0-20220305071151-8348c82b924a h1:RnJpWFtCFKqSHPcHDmQaMT3k4UTplZZhOoIzxPb59Fs=
-github.com/hyperxpizza/auth-service v0.0.0-20220305071151-8348c82b924a/go.mod h1:eyFcrqkKw9Z5OGZVCDjPcUQjWqb70vBZlB3K6XZVR8c=
+github.com/hyperxpizza/auth-service v0.0.0-20220305181042-937d02ac32b4 h1:PoYoAzDq/jktYpCyFTjQs1iqute9nBDyRCPSROOOxQc=
+github.com/hyperxpizza/auth-service v0.0.0-20220305181042-937d02ac32b4/go.mod h1:eyFcrqkKw9Z5OGZVCDjPcUQjWqb70vBZlB3K6XZVR8c=
+github.com/hyperxpizza/auth-service v0.0.0-20220306165432-e57f222eec99 h1:kgeOnAxFV40TuDO4HZ+0i7h6hajGz2X4Hl2x+kWLj/M=
+github.com/hyperxpizza/auth-service v0.0.0-20220306165432-e57f222eec99/go.mod h1:eyFcrqkKw9Z5OGZVCDjPcUQjWqb70vBZlB3K6XZVR8c=
 github.com/hyperxpizza/users-service v0.0.0-20220219112230-e34fce10ac2d h1:sLG7EwAYlwIjPfNyG0jv7ecMjXQfpMSm16NSOJWwIhI=
 github.com/hyperxpizza/users-service v0.0.0-20220219112230-e34fce10ac2d/go.mod h1:mB7cMK8JeZwhi8CMOnZagHbxEiLraabVwWweKlbJ0qE=
+github.com/hyperxpizza/users-service v0.0.0-20220306170534-ca4379f5e15c h1:YSaiPUIAPm72ERpRW0+tOAxw0lIPzhWLrwI0VxXSWuw=
+github.com/hyperxpizza/users-service v0.0.0-20220306170534-ca4379f5e15c/go.mod h1:mB7cMK8JeZwhi8CMOnZagHbxEiLraabVwWweKlbJ0qE=
 github.com/json-iterator/go v1.1.9/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
