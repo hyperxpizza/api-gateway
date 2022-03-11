@@ -24,8 +24,8 @@ const (
 )
 
 type loginRequest struct {
-	username string `json:"username"`
-	password string `json:"password"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 var bgContext = context.Background()
@@ -38,7 +38,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	loginData, err := s.usersServiceClient.GetLoginData(bgContext, &uspb.LoginRequest{Username: req.username, Password: req.password})
+	loginData, err := s.usersServiceClient.GetLoginData(bgContext, &uspb.LoginRequest{Username: req.Username, Password: req.Password})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -52,7 +52,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	tokens, err := s.authServiceClient.GenerateToken(bgContext, &aspb.TokenRequest{Username: req.username, UsersServiceID: loginData.UserID})
+	tokens, err := s.authServiceClient.GenerateToken(bgContext, &aspb.TokenRequest{Username: req.Username, UsersServiceID: loginData.UserID})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -74,10 +74,10 @@ func (s *Server) Login(c *gin.Context) {
 }
 
 type registerRequest struct {
-	username  string `json:"username"`
-	password1 string `json:"password1"`
-	password2 string `json:"password2"`
-	email     string `json:"email"`
+	Username  string `json:"username"`
+	Password1 string `json:"password1"`
+	Password2 string `json:"password2"`
+	Email     string `json:"email"`
 }
 
 func (s *Server) Register(c *gin.Context) {
@@ -119,7 +119,29 @@ func (s *Server) AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+type refreshTokenRequest struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
 func (s *Server) RefreshToken(c *gin.Context) {
+	var req refreshTokenRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	data := aspb.RefreshTokenData{RefreshToken: req.RefreshToken}
+	tokens, err := s.authServiceClient.RefreshToken(bgContext, &data)
+	if err != nil {
+		code := utils.GetHTTPCodeFromStatus(err)
+		c.Status(code)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"accessToken":  tokens.AccessToken,
+		"refreshToken": tokens.RefreshToken,
+	})
 
 }
 
